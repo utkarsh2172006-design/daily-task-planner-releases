@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Daily Task Planner — A quiet day planner for Windows</title>
-  <meta name="description" content="An executive, distraction-free day planner for Windows. Offline-first, built-in ambient audio, focus sprint timer." />
+  <title>Daily Task Planner — Plan your day. Own your focus. No distractions.</title>
+  <meta name="description" content="An executive, distraction-free day planner for Windows. Plan your day. Own your focus. No distractions." />
   <link rel="icon" type="image/png" href="icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -219,13 +219,29 @@
     }
 
     h1 {
-      font-size: clamp(2.5rem, 5.5vw, 4.2rem);
-      font-weight: 800;
-      letter-spacing: -0.045em;
-      line-height: 1.06;
-      color: var(--t1);
-      margin-bottom: 18px;
+      font-size: clamp(2.6rem, 5.8vw, 4.4rem);
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 22px;
       animation: fadeInUp 0.7s var(--ease);
+    }
+
+    .hero-line-white {
+      color: #f4f4f5;
+      font-weight: 800;
+      display: inline-block;
+    }
+
+    .hero-line-green {
+      color: #10b981;
+      font-weight: 800;
+      display: inline-block;
+    }
+
+    .hero-line-gray {
+      color: #71717a;
+      font-weight: 400;
+      display: inline-block;
     }
 
     .hero-lead {
@@ -988,7 +1004,11 @@
         <span class="eyebrow-text">Free Forever</span>
       </div>
 
-      <h1>Plan your day.<br />Work in peace.</h1>
+      <h1 class="hero-title">
+        <span class="hero-line-white">Plan your day.</span><br />
+        <span class="hero-line-green">Own your focus.</span><br />
+        <span class="hero-line-gray">No distractions.</span>
+      </h1>
 
       <p class="hero-lead">
         A quiet desktop workstation for students and creators.
