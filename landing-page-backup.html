@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Task Planner — Plan your day. Own your focus. No distractions.</title>
+  <meta name="description" content="An executive, distraction-free day planner for Windows. Plan your day. Own your focus. No distractions." />
+  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-0: #09090b;
+      --bg-1: #111114;
+      --bg-2: #18181b;
+      --bg-3: #222226;
+      --border: rgba(255,255,255,0.08);
+      --border-h: rgba(255,255,255,0.18);
+      --t1: #f4f4f5;
+      --t2: #d4d4d8;
+      --t3: #a1a1aa;
+      --t4: #71717a;
+      --green: #10b981;
+      --green-light: #34d399;
+      --green-glow: rgba(16,185,129,0.25);
+      --amber: #fbbf24;
+      --red: #fb7185;
+      --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html { color-scheme: dark; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg-0);
+      color: var(--t1);
+      line-height: 1.55;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      position: relative;
+    }
+
+    /* ── Subtle Dark Blueprint Grid Across Entire Page ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Ambient background lighting */
+    .ambient-glow {
+      position: fixed;
+      top: -240px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 900px;
+      height: 550px;
+      background: radial-gradient(ellipse, rgba(16,185,129,0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+      animation: breathe 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes breathe {
+      0% { opacity: 0.6; transform: translateX(-50%) scale(0.95); }
+      100% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Sticky Header ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(9,9,11,0.85);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .nav-logo {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1px solid var(--border-h);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transition: transform 0.25s var(--ease);
+    }
+    .nav-brand:hover .nav-logo { transform: scale(1.06) rotate(-2deg); }
+
+    .nav-brand-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--t1);
+      letter-spacing: -0.02em;
+    }
+
+    .nav-badge {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--t3);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      padding: 2.5px 9px;
+      border-radius: 9999px;
+    }
+
+    .btn-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      background: var(--t1);
+      color: var(--bg-0);
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s var(--ease);
+      box-shadow: 0 2px 10px rgba(255,255,255,0.08);
+    }
+    .btn-nav:hover { opacity: 0.92; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(255,255,255,0.18); }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 68px 0 52px;
+      text-align: center;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 16px 5px 10px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 24px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      font-size: 12px;
+      color: var(--t3);
+      margin-bottom: 28px;
+      user-select: none;
+      transition: all 0.25s var(--ease);
+      animation: fadeInDown 0.6s var(--ease);
+    }
+    .hero-eyebrow:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 12px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .eyebrow-pill-highlight {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.28);
+      padding: 2.5px 10px;
+      border-radius: 9999px;
+      color: var(--green-light);
+      font-weight: 700;
+      font-size: 11.5px;
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green-light);
+      box-shadow: 0 0 8px var(--green-light);
+      animation: blink 2.4s infinite;
+    }
+
+    .eyebrow-text {
+      color: var(--t2);
+      font-weight: 500;
+      font-size: 12px;
+    }
+
+    .eyebrow-dot-sep {
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 10px;
+    }
+
+    h1 {
+      font-size: clamp(2.6rem, 5.8vw, 4.4rem);
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 22px;
+      animation: fadeInUp 0.7s var(--ease);
+    }
+
+    .hero-line-white {
+      color: #f4f4f5;
+      font-weight: 800;
+      display: inline-block;
+    }
+
+    .hero-line-green {
+      color: #10b981;
+      font-weight: 800;
+      display: inline-block;
+    }
+
+    .hero-line-gray {
+      color: #71717a;
+      font-weight: 400;
+      display: inline-block;
+    }
+
+    .hero-lead {
+      font-size: 17px;
+      color: var(--t2);
+      max-width: 540px;
+      margin: 0 auto 32px;
+      animation: fadeInUp 0.8s var(--ease);
+    }
+
+    .hero-cta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 48px;
+      animation: fadeInUp 0.9s var(--ease);
+    }
+
+    .btn-hero {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 36px;
+      background: var(--t1);
+      color: var(--bg-0);
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 10px;
+      text-decoration: none;
+      letter-spacing: -0.01em;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.15);
+      transition: all 0.2s var(--ease);
+    }
+    .btn-hero:hover {
+      opacity: 0.94;
+      transform: translateY(-2px);
+      box-shadow: 0 18px 48px rgba(0,0,0,0.8), 0 0 0 2px rgba(255,255,255,0.25);
+    }
+    .btn-hero:active { transform: translateY(0); }
+
+    .btn-icon-anim {
+      font-size: 18px;
+      transition: transform 0.2s;
+    }
+    .btn-hero:hover .btn-icon-anim { transform: translateY(2px); }
+
+    .trust-chips {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .trust-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 13px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--t3);
+      transition: all 0.2s ease;
+    }
+    .trust-chip:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--t1);
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    /* ── Live Interactive Workstation Window ── */
+    .workstation-container {
+      max-width: 840px;
+      margin: 0 auto 72px;
+      border-radius: 16px;
+      border: 1px solid var(--border-h);
+      background: var(--bg-1);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.06);
+      overflow: hidden;
+      animation: zoomIn 0.8s var(--ease);
+      transition: border-color 0.3s;
+    }
+
+    .workstation-container:hover {
+      border-color: rgba(16,185,129,0.35);
+    }
+
+    .ws-titlebar {
+      padding: 13px 20px;
+      background: var(--bg-2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ws-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ws-dot { width: 11px; height: 11px; border-radius: 50%; }
+    .ws-r { background: #ef4444; }
+    .ws-y { background: #f59e0b; }
+    .ws-g { background: #10b981; }
+
+    .ws-brand-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--t2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ws-logo-img { width: 16px; height: 16px; border-radius: 4px; }
+
+    .ws-live-pill {
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 3px 10px;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      box-shadow: inset 0 1px 0 rgba(16, 185, 129, 0.15);
+      color: var(--green-light);
+      border-radius: 9999px;
+      letter-spacing: 0.01em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ws-body {
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 20px;
+      text-align: left;
+    }
+
+    /* Left pane of live mock: tasks */
+    .ws-tasks-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .ws-pane-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .ws-pane-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--t1);
+    }
+
+    .ws-hint {
+      font-size: 11px;
+      color: var(--t4);
+      font-weight: 600;
+    }
+
+    .interactive-task {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.18s var(--ease);
+    }
+
+    .interactive-task:hover {
+      border-color: var(--border-h);
+      transform: translateX(3px);
+      background: var(--bg-3);
+    }
+
+    .task-checkbox {
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      border: 2px solid var(--t4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      font-weight: 800;
+    }
+
+    .interactive-task.checked .task-checkbox {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+      font-size: 11px;
+    }
+
+    .task-title {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--t2);
+      transition: color 0.2s;
+    }
+
+    .interactive-task.checked .task-title {
+      text-decoration: line-through;
+      color: var(--t4);
+    }
+
+    .task-priority-tag {
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 2.5px 8px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .tag-red { color: var(--red); background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.22); }
+    .tag-amber { color: var(--amber); background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.22); }
+    .tag-green { color: var(--green-light); background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.22); }
+
+    /* Right pane of live mock: focus sprint & live sound */
+    .ws-sprint-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .sprint-timer-box {
+      text-align: center;
+      padding: 16px 12px;
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .sprint-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .sprint-countdown {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--t1);
+      letter-spacing: -0.03em;
+    }
+
+    .sprint-progress-bar {
+      height: 4px;
+      width: 100%;
+      background: var(--border);
+      border-radius: 10px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+
+    .sprint-progress-fill {
+      height: 100%;
+      width: 68%;
+      background: var(--green);
+      animation: progressAnim 20s linear infinite;
+    }
+
+    @keyframes progressAnim {
+      0% { width: 100%; }
+      100% { width: 0%; }
+    }
+
+    /* Audio Preview controls inside the live mock */
+    .live-sound-strip {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sound-strip-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--t2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Sound waveform animation */
+    .sound-waves {
+      display: none;
+      align-items: center;
+      gap: 3px;
+      height: 14px;
+    }
+    .sound-waves.active { display: flex; }
+
+    .wave-bar {
+      width: 3px;
+      height: 100%;
+      background: var(--green-light);
+      border-radius: 2px;
+      animation: wave 1s ease-in-out infinite alternate;
+    }
+    .wave-bar:nth-child(2) { animation-delay: 0.2s; height: 60%; }
+    .wave-bar:nth-child(3) { animation-delay: 0.4s; height: 80%; }
+    .wave-bar:nth-child(4) { animation-delay: 0.1s; height: 40%; }
+
+    @keyframes wave {
+      0% { transform: scaleY(0.3); }
+      100% { transform: scaleY(1); }
+    }
+
+    .sound-buttons-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn-sound {
+      padding: 8px 12px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      color: var(--t2);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.18s var(--ease);
+    }
+    .btn-sound:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--t1);
+      border-color: rgba(255, 255, 255, 0.18);
+      transform: translateY(-1px);
+    }
+    .btn-sound.active {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.35);
+      color: var(--green-light);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(16, 185, 129, 0.2);
+    }
+
+    /* ── Visual Feature Pillars ── */
+    .features-section {
+      margin-bottom: 72px;
+    }
+
+    .section-tag {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .section-tag::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .visual-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .visual-card {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: all 0.25s var(--ease);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .visual-card:hover {
+      border-color: var(--border-h);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+    }
+
+    .visual-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .visual-card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--t1);
+      letter-spacing: -0.02em;
+    }
+
+    .visual-card p {
+      font-size: 13.5px;
+      color: var(--t3);
+      line-height: 1.6;
+    }
+
+    /* ── Tactile Keyboard Strip ── */
+    .hotkey-bar {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 72px;
+    }
+
+    .hotkey-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--t1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hotkey-items {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .hotkey-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--t2);
+    }
+
+    kbd {
+      padding: 4px 8px;
+      font-family: var(--font);
+      font-size: 11px;
+      background: var(--bg-3);
+      border: 1px solid var(--border-h);
+      border-bottom: 2px solid rgba(255,255,255,0.25);
+      border-radius: 6px;
+      color: var(--t1);
+      line-height: 1;
+      font-weight: 700;
+    }
+
+    /* ── Trust & Security Strip ── */
+    .trust-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 72px;
+    }
+
+    .trust-box {
+      background: var(--bg-1);
+      padding: 26px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+    .trust-box:hover { background: var(--bg-2); }
+
+    .trust-box-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--t1);
+    }
+
+    .trust-box p {
+      font-size: 12.5px;
+      color: var(--t3);
+      line-height: 1.5;
+    }
+
+    /* ── Friendly Download & Install Help Banner ── */
+    .smartscreen-banner {
+      background: rgba(245, 158, 11, 0.04);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: 16px;
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-bottom: 72px;
+    }
+
+    .ss-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .ss-emoji {
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+
+    .ss-text-col {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .ss-heading {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--t1);
+    }
+
+    .ss-sub {
+      font-size: 13px;
+      color: var(--t3);
+    }
+
+    .ss-cases-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .ss-case-card {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .ss-case-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--t2);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .ss-steps-pills {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .ss-pill {
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--bg-2);
+      border: 1px solid var(--border-h);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      color: #e4e4e7;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .ss-pill.active-pill {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.35);
+      box-shadow: inset 0 1px 0 rgba(16, 185, 129, 0.2), 0 2px 10px rgba(16, 185, 129, 0.15);
+      color: var(--green-light);
+    }
+
+    .ss-arrow {
+      color: var(--t4);
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    /* ── Bottom Call to Action ── */
+    .cta-card {
+      text-align: center;
+      padding: 68px 24px;
+      border: 1px solid var(--border-h);
+      border-radius: 18px;
+      background: radial-gradient(circle at 50% 0%, rgba(16,185,129,0.09) 0%, var(--bg-1) 70%);
+      margin-bottom: 72px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+    }
+
+    .cta-card h2 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 10px;
+    }
+
+    .cta-card p {
+      font-size: 15px;
+      color: var(--t2);
+      margin-bottom: 28px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 0;
+      font-size: 13px;
+      color: var(--t4);
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--t3);
+      font-weight: 600;
+    }
+
+    .footer-logo {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      opacity: 0.8;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .footer-email-box {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      padding: 3px 4px 3px 12px;
+      gap: 10px;
+      transition: all 0.2s var(--ease);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+    .footer-email-box:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: var(--border-h);
+    }
+
+    .footer-email-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--t2);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+    .footer-email-link:hover {
+      color: var(--t1);
+    }
+
+    .btn-copy-email {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--t2);
+      font-family: var(--font);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+      user-select: none;
+    }
+    .btn-copy-email:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: var(--t1);
+      border-color: rgba(255, 255, 255, 0.24);
+      transform: translateY(-1px);
+    }
+    .btn-copy-email:active {
+      transform: scale(0.95);
+    }
+    .btn-copy-email.copied {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(16, 185, 129, 0.45);
+      color: var(--green-light);
+    }
+
+    /* Keyframe Animations */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes zoomIn {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .ws-body { grid-template-columns: 1fr; }
+      .visual-grid { grid-template-columns: 1fr; }
+      .trust-strip { grid-template-columns: 1fr 1fr; }
+      .ss-cases-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="nav-inner">
+      <a href="#" class="nav-brand">
+        <img src="icon.png" alt="Daily Task Planner" class="nav-logo" />
+        <span class="nav-brand-title">Daily Task Planner</span>
+        <span class="nav-badge">v1.0.7</span>
+      </a>
+      <a
+        href="https://github.com/utkarsh2172006-design/daily-task-planner-releases/releases/latest/download/Daily.Task.Planner.Setup.1.0.7.exe"
+        class="btn-nav"
+      >
+        <span>↓</span>
+        Download for Windows
+      </a>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-eyebrow">
+        <span class="eyebrow-pill-highlight">
+          <span class="pulse-dot"></span>
+          Windows 10 &amp; 11
+        </span>
+        <span class="eyebrow-text">100% Offline</span>
+        <span class="eyebrow-dot-sep">✦</span>
+        <span class="eyebrow-text">Free Forever</span>
+      </div>
+
+      <h1 class="hero-title">
+        <span class="hero-line-white">Plan your day.</span><br />
+        <span class="hero-line-green">Own your focus.</span><br />
+        <span class="hero-line-gray">No distractions.</span>
+      </h1>
+
+      <p class="hero-lead">
+        A quiet desktop workstation for students and creators.
+        No accounts, no notifications, and built-in flow audio.
+      </p>
+
+      <div class="hero-cta">
+        <a
+          id="btn-primary-download"
+          href="https://github.com/utkarsh2172006-design/daily-task-planner-releases/releases/latest/download/Daily.Task.Planner.Setup.1.0.7.exe"
+          class="btn-hero"
+        >
+          <span class="btn-icon-anim">↓</span>
+          Download for Windows — Free
+        </a>
+
+        <div class="trust-chips">
+          <span class="trust-chip">🛡️ 100% Offline</span>
+          <span class="trust-chip">⚡ Instant 1-Second Launch</span>
+          <span class="trust-chip">🔒 Saved on Your Disk</span>
+          <span class="trust-chip">📦 107 MB Setup</span>
+        </div>
+      </div>
+
+      <!-- Live Interactive Workstation Window -->
+      <div class="workstation-container">
+        <div class="ws-titlebar">
+          <div class="ws-controls">
+            <div class="ws-dot ws-r"></div>
+            <div class="ws-dot ws-y"></div>
+            <div class="ws-dot ws-g"></div>
+          </div>
+          <div class="ws-brand-title">
+            <img src="icon.png" alt="" class="ws-logo-img" />
+            <span>Daily Task Planner Workstation</span>
+          </div>
+          <span class="ws-live-pill">
+            <span class="pulse-dot" style="width:5px;height:5px;"></span>
+            Interactive Preview
+          </span>
+        </div>
+
+        <div class="ws-body">
+          <!-- Left: Clickable Tasks -->
+          <div class="ws-tasks-pane">
+            <div class="ws-pane-header">
+              <span class="ws-pane-title">Today's Focus</span>
+              <span class="ws-hint">Click tasks to test</span>
+            </div>
+
+            <div class="interactive-task checked" onclick="toggleTask(this)">
+              <div class="task-checkbox">✓</div>
+              <span class="task-title">Morning review &amp; task sorting</span>
+              <span class="task-priority-tag tag-green">Done</span>
+            </div>
+
+            <div class="interactive-task" onclick="toggleTask(this)">
+              <div class="task-checkbox"></div>
+              <span class="task-title">Deep Study: Practice sets &amp; algorithms</span>
+              <span class="task-priority-tag tag-red">High</span>
+            </div>
+
+            <div class="interactive-task" onclick="toggleTask(this)">
+              <div class="task-checkbox"></div>
+              <span class="task-title">Content: Script &amp; audio recording</span>
+              <span class="task-priority-tag tag-amber">Med</span>
+            </div>
+
+            <div class="interactive-task" onclick="toggleTask(this)">
+              <div class="task-checkbox"></div>
+              <span class="task-title">Admin: Clear inbox &amp; update backlog</span>
+              <span class="task-priority-tag tag-green">Low</span>
+            </div>
+          </div>
+
+          <!-- Right: Active Timer & Flow Audio -->
+          <div class="ws-sprint-pane">
+            <div class="sprint-timer-box">
+              <div class="sprint-label">Focus Sprint</div>
+              <div class="sprint-countdown" id="live-sprint-timer">24:45</div>
+              <div class="sprint-progress-bar">
+                <div class="sprint-progress-fill"></div>
+              </div>
+            </div>
+
+            <div class="live-sound-strip">
+              <div class="sound-strip-title">
+                <span>Built-in Flow Audio</span>
+                <div class="sound-waves" id="soundWaves">
+                  <div class="wave-bar"></div>
+                  <div class="wave-bar"></div>
+                  <div class="wave-bar"></div>
+                  <div class="wave-bar"></div>
+                </div>
+              </div>
+              <div class="sound-buttons-grid">
+                <button class="btn-sound" onclick="toggleAudio('brown')">▶ Brown</button>
+                <button class="btn-sound" onclick="toggleAudio('tone')">▶ 432Hz</button>
+                <button class="btn-sound" onclick="toggleAudio('rain')">▶ Rain</button>
+                <button class="btn-sound" onclick="toggleAudio('off')">■ Mute</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Visual 3 Pillars -->
+    <section class="features-section">
+      <div class="section-tag">Why You Will Love This</div>
+
+      <div class="visual-grid">
+        <div class="visual-card">
+          <div class="visual-card-icon">⏱</div>
+          <h3>Distraction-Free Sprint</h3>
+          <p>
+            When your sprint starts, all interface controls fade away so you cannot fidget.
+            Move your cursor to the top edge only when you need to pause.
+          </p>
+        </div>
+
+        <div class="visual-card">
+          <div class="visual-card-icon">🎧</div>
+          <h3>Built-in Ambient Sound</h3>
+          <p>
+            Brown noise, rain, and a 432Hz focus tone synthesized directly inside the app.
+            No browser tabs or music ads needed.
+          </p>
+        </div>
+
+        <div class="visual-card">
+          <div class="visual-card-icon">🔥</div>
+          <h3>Daily Streak Engine</h3>
+          <p>
+            An honest daily streak counter that keeps you consistent every single day.
+            Build momentum one day at a time.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tactile Keyboard Bar -->
+    <div class="hotkey-bar">
+      <div class="hotkey-title">
+        <span>⌨️ Keyboard-First Speed</span>
+      </div>
+      <div class="hotkey-items">
+        <div class="hotkey-chip"><kbd>Ctrl+K</kbd> Command Palette</div>
+        <div class="hotkey-chip"><kbd>J</kbd> / <kbd>K</kbd> Move Up &amp; Down</div>
+        <div class="hotkey-chip"><kbd>Space</kbd> Check Off</div>
+        <div class="hotkey-chip"><kbd>C</kbd> Calendar</div>
+        <div class="hotkey-chip"><kbd>N</kbd> New Task</div>
+      </div>
+    </div>
+
+    <!-- Trust & Safety 4-Box -->
+    <div class="trust-strip">
+      <div class="trust-box">
+        <div class="trust-box-top">🛡️ 100% Offline</div>
+        <p>Never connects to external servers. Your tasks stay private on your PC.</p>
+      </div>
+      <div class="trust-box">
+        <div class="trust-box-top">💾 Local File Storage</div>
+        <p>All data is saved in a readable file on your disk. You own your data.</p>
+      </div>
+      <div class="trust-box">
+        <div class="trust-box-top">⚡ Fast 1-Click Setup</div>
+        <p>Installs instantly and launches right away on Windows 10 and 11.</p>
+      </div>
+      <div class="trust-box">
+        <div class="trust-box-top">🆓 Free Forever</div>
+        <p>No subscriptions, no hidden paywalls, and zero advertisements.</p>
+      </div>
+    </div>
+
+    <!-- 12-Year-Old Friendly Download & Install Help Card -->
+    <div class="smartscreen-banner">
+      <div class="ss-header">
+        <div class="ss-emoji">💡</div>
+        <div class="ss-text-col">
+          <div class="ss-heading">Seeing an alert while downloading or opening?</div>
+          <div class="ss-sub">Don't worry! This is normal for new independent apps. It is 100% safe:</div>
+        </div>
+      </div>
+
+      <div class="ss-cases-grid">
+        <!-- Warning 1: During download in Browser -->
+        <div class="ss-case-card">
+          <div class="ss-case-title">
+            <span>🌐</span> If your browser shows a download warning:
+          </div>
+          <div class="ss-steps-pills">
+            <span class="ss-pill">1. Click "..." or "Keep"</span>
+            <span class="ss-arrow">→</span>
+            <span class="ss-pill active-pill">2. Click "Keep anyway"</span>
+          </div>
+        </div>
+
+        <!-- Warning 2: When opening .exe in Windows -->
+        <div class="ss-case-card">
+          <div class="ss-case-title">
+            <span>💻</span> If Windows shows a blue popup:
+          </div>
+          <div class="ss-steps-pills">
+            <span class="ss-pill">1. Click "More info"</span>
+            <span class="ss-arrow">→</span>
+            <span class="ss-pill active-pill">2. Click "Run anyway"</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom CTA -->
+    <div class="cta-card">
+      <h2>Ready to take control of your day?</h2>
+      <p>Clean. Fast. Completely offline. Free forever.</p>
+      <a
+        href="https://github.com/utkarsh2172006-design/daily-task-planner-releases/releases/latest/download/Daily.Task.Planner.Setup.1.0.7.exe"
+        class="btn-hero"
+      >
+        <span class="btn-icon-anim">↓</span>
+        Download Daily Task Planner (v1.0.7)
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="wrap">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <img src="icon.png" alt="" class="footer-logo" />
+          <span>Daily Task Planner · v1.0.7</span>
+        </div>
+        <div class="footer-links">
+          <div class="footer-email-box">
+            <a href="mailto:utkarsh2172006@gmail.com?subject=Daily%20Task%20Planner" class="footer-email-link" title="Open mail client">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 48 48" style="vertical-align:middle;flex-shrink:0;">
+                <path fill="#4caf50" d="M45,16.2l-5,2.75v18.55c0,1.93-1.57,3.5-3.5,3.5h-5.5V24.38L45,16.2z"/>
+                <path fill="#1e88e5" d="M3,16.2l5,2.75v18.55c0,1.93,1.57,3.5,3.5,3.5h5.5V24.38L3,16.2z"/>
+                <polygon fill="#e53935" points="35,11.2 24,19.45 13,11.2 12,17 24,26 36,17"/>
+                <path fill="#c62828" d="M3,12.29v3.91l9,6.75V17L3,12.29z"/>
+                <path fill="#fbc02d" d="M45,12.29v3.91l-9,6.75V17L45,12.29z"/>
+                <path fill="#1565c0" d="M38.5,7h-29C7.57,7,6,8.57,6,10.5v1.79l18,13.5l18-13.5V10.5C42,8.57,40.43,7,38.5,7z"/>
+              </svg>
+              <span>utkarsh2172006@gmail.com</span>
+            </a>
+            <button
+              id="btn-copy-email"
+              class="btn-copy-email"
+              type="button"
+              onclick="copyEmailAddress(event)"
+              aria-label="Copy email address"
+              title="Copy email to clipboard"
+            >
+              <svg class="copy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span class="copy-label">Copy</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Interactive Logic -->
+  <script>
+    // Interactive Task Check / Uncheck
+    function toggleTask(elem) {
+      elem.classList.toggle('checked');
+      const box = elem.querySelector('.task-checkbox');
+      const tag = elem.querySelector('.task-priority-tag');
+      if (elem.classList.contains('checked')) {
+        box.textContent = '✓';
+        if (tag) {
+          tag.dataset.origText = tag.textContent;
+          tag.dataset.origClass = tag.className;
+          tag.textContent = 'Done';
+          tag.className = 'task-priority-tag tag-green';
+        }
+      } else {
+        box.textContent = '';
+        if (tag && tag.dataset.origText) {
+          tag.textContent = tag.dataset.origText;
+          tag.className = tag.dataset.origClass;
+        }
+      }
+    }
+
+    // Live Ticking Timer
+    let totalSec = 24 * 60 + 45;
+    const timerElem = document.getElementById('live-sprint-timer');
+    setInterval(() => {
+      if (totalSec > 0) totalSec--;
+      else totalSec = 25 * 60;
+      const m = Math.floor(totalSec / 60);
+      const s = totalSec % 60;
+      if (timerElem) timerElem.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }, 1000);
+
+    // Live Audio Engine
+    let audioCtx = null;
+    let currentSound = 'off';
+    let soundNode = null;
+
+    function getAudioCtx() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    function toggleAudio(type) {
+      if (soundNode) {
+        try {
+          if (soundNode.stop) soundNode.stop();
+          soundNode.disconnect();
+        } catch (e) {}
+        soundNode = null;
+      }
+
+      const waves = document.getElementById('soundWaves');
+      const btns = document.querySelectorAll('.btn-sound');
+      btns.forEach(b => b.classList.remove('active'));
+
+      if (type === 'off' || currentSound === type) {
+        currentSound = 'off';
+        if (waves) waves.classList.remove('active');
+        return;
+      }
+
+      currentSound = type;
+      btns.forEach(b => {
+        if (b.textContent.toLowerCase().includes(type.slice(0, 3))) {
+          b.classList.add('active');
+        }
+      });
+      if (waves) waves.classList.add('active');
+
+      try {
+        const ctx = getAudioCtx();
+
+        if (type === 'tone') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(432, ctx.currentTime);
+          gain.gain.setValueAtTime(0.04, ctx.currentTime);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          soundNode = osc;
+          return;
+        }
+
+        const bufferSize = ctx.sampleRate * 2;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+
+        if (type === 'brown') {
+          let last = 0.0;
+          for (let i = 0; i < bufferSize; i++) {
+            const white = Math.random() * 2 - 1;
+            data[i] = (last + (0.02 * white)) / 1.02;
+            last = data[i];
+            data[i] *= 3.0;
+          }
+        } else if (type === 'rain') {
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * (0.8 + 0.2 * Math.sin(i / 800));
+          }
+        }
+
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        noise.loop = true;
+
+        const filter = ctx.createBiquadFilter();
+        if (type === 'brown') {
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(320, ctx.currentTime);
+        } else if (type === 'rain') {
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(850, ctx.currentTime);
+          filter.Q.setValueAtTime(1.0, ctx.currentTime);
+        }
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(type === 'brown' ? 0.07 : 0.045, ctx.currentTime);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        noise.start();
+        soundNode = noise;
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
+    // Copy Email Address with Tactile Feedback
+    function copyEmailAddress(e) {
+      if (e) e.stopPropagation();
+      const email = 'utkarsh2172006@gmail.com';
+      const btn = document.getElementById('btn-copy-email');
+      
+      const onSuccess = () => {
+        if (!btn) return;
+        btn.classList.add('copied');
+        btn.innerHTML = `
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span class="copy-label">Copied!</span>
+        `;
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = `
+            <svg class="copy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span class="copy-label">Copy</span>
+          `;
+        }, 2200);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(email).then(onSuccess).catch(() => {
+          fallbackCopyText(email, onSuccess);
+        });
+      } else {
+        fallbackCopyText(email, onSuccess);
+      }
+    }
+
+    function fallbackCopyText(text, cb) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        if (cb) cb();
+      } catch (err) {}
+      document.body.removeChild(ta);
+    }
+  </script>
+</body>
+</html>
