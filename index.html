@@ -1,652 +1,407 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Daily Task Planner — Download for Windows</title>
-  <meta name="description" content="A focused, offline-first Windows desktop planner. Focus Sprint timer, streak tracking, ambient audio. Free download." />
-  <meta property="og:title" content="Daily Task Planner" />
-  <meta property="og:description" content="Plan your day. Stay focused. Build streaks. 100% offline, free forever." />
-  <meta property="og:type" content="website" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Daily Task Planner — Plan Your Day. Own Your Time.</title>
+  <meta name="description" content="A focused, offline-first Windows desktop planner. Focus Sprint timer, streak tracking, ambient audio. Free forever."/>
+  <meta property="og:title" content="Daily Task Planner"/>
+  <meta property="og:description" content="Plan your day. Stay focused. Build streaks. 100% offline, free forever."/>
+  <meta property="og:type" content="website"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --bg-0: #09090b;
-      --bg-1: #111114;
-      --bg-2: #18181b;
-      --bg-3: #202024;
-      --bg-4: #27272a;
-      --border: rgba(255,255,255,0.08);
-      --border-h: rgba(255,255,255,0.16);
-      --t1: #f4f4f5;
-      --t2: #a1a1aa;
-      --t3: #71717a;
-      --t4: #3f3f46;
-      --green: #10b981;
-      --green-d: rgba(16,185,129,0.10);
-      --amber: #f59e0b;
-      --red: #f43f5e;
-      --blue: #3b82f6;
-      --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      --mono: 'JetBrains Mono', ui-monospace, monospace;
-      --ease: cubic-bezier(0.16,1,0.3,1);
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --bg-0:#09090b;--bg-1:#111114;--bg-2:#18181b;--bg-3:#202024;--bg-4:#27272a;
+      --border:rgba(255,255,255,0.07);--border-h:rgba(255,255,255,0.14);
+      --t1:#f4f4f5;--t2:#a1a1aa;--t3:#71717a;--t4:#3f3f46;
+      --green:#10b981;--green-d:rgba(16,185,129,0.08);--green-g:rgba(16,185,129,0.15);
+      --red:#f43f5e;--red-d:rgba(244,63,94,0.10);
+      --amber:#f59e0b;--amber-d:rgba(245,158,11,0.10);
+      --blue:#3b82f6;
+      --font:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+      --mono:'JetBrains Mono',ui-monospace,monospace;
+      --ease:cubic-bezier(0.16,1,0.3,1);
     }
+    html{color-scheme:dark;scroll-behavior:smooth}
+    body{font-family:var(--font);background:var(--bg-0);color:var(--t1);min-height:100vh;-webkit-font-smoothing:antialiased;font-feature-settings:"cv02","cv03","cv04","ss01";overflow-x:hidden}
 
-    html { color-scheme: dark; scroll-behavior: smooth; }
+    /* Grid bg */
+    .grid-bg{position:fixed;inset:0;pointer-events:none;z-index:0;
+      background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);
+      background-size:48px 48px}
 
-    body {
-      font-family: var(--font);
-      background: var(--bg-0);
-      color: var(--t1);
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-      font-feature-settings: "cv02","cv03","cv04","cv11","ss01";
-      overflow-x: hidden;
+    /* Green top glow */
+    .glow-top{position:fixed;top:-400px;left:50%;transform:translateX(-50%);width:900px;height:700px;
+      background:radial-gradient(ellipse,rgba(16,185,129,0.09) 0%,transparent 65%);
+      pointer-events:none;z-index:0}
+
+    .page{position:relative;z-index:1}
+
+    /* ── NAV ── */
+    nav{position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);
+      background:rgba(9,9,11,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+    .nav-inner{max-width:1080px;margin:0 auto;padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between}
+    .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+    .nav-pulse{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px rgba(16,185,129,0.7);animation:pulse 3s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.2)}}
+    .nav-name{font-size:14px;font-weight:700;color:var(--t1);letter-spacing:-0.02em}
+    .nav-right{display:flex;align-items:center;gap:16px}
+    .nav-version{font-family:var(--mono);font-size:10px;color:var(--t4);background:var(--bg-3);border:1px solid var(--border);padding:3px 9px;border-radius:4px;letter-spacing:0.04em}
+    .btn-nav{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:var(--t1);color:var(--bg-0);font-family:var(--font);font-size:12px;font-weight:700;border-radius:6px;text-decoration:none;letter-spacing:-0.01em;transition:opacity 0.15s}
+    .btn-nav:hover{opacity:0.85}
+
+    /* ── HERO ── */
+    .hero{max-width:1080px;margin:0 auto;padding:100px 32px 80px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+    .hero-left{display:flex;flex-direction:column;gap:28px}
+    .hero-chip{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;font-weight:600;color:var(--green);background:var(--green-d);border:1px solid rgba(16,185,129,0.2);padding:5px 12px;border-radius:4px;letter-spacing:0.08em;text-transform:uppercase;width:fit-content}
+    .hero-chip span{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
+    h1{font-size:clamp(2rem,3.5vw,3rem);font-weight:800;letter-spacing:-0.04em;line-height:1.06;color:var(--t1)}
+    h1 em{font-style:normal;color:var(--green)}
+    .hero-sub{font-size:15px;color:var(--t2);line-height:1.75;font-weight:400;max-width:400px}
+    .hero-cta{display:flex;flex-direction:column;gap:12px}
+    .btn-primary{display:inline-flex;align-items:center;gap:10px;padding:14px 24px;background:var(--t1);color:var(--bg-0);font-family:var(--font);font-size:14px;font-weight:700;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;box-shadow:0 0 0 1px rgba(255,255,255,0.1),0 8px 32px rgba(0,0,0,0.6);transition:all 0.15s var(--ease);width:fit-content}
+    .btn-primary:hover{opacity:0.9;transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,255,255,0.1),0 12px 40px rgba(0,0,0,0.7)}
+    .btn-primary:active{transform:translateY(0)}
+    .meta-row{display:flex;align-items:center;gap:14px}
+    .meta-pill{font-family:var(--mono);font-size:10px;color:var(--t3);font-weight:500;letter-spacing:0.04em;display:flex;align-items:center;gap:5px}
+    .meta-sep{width:3px;height:3px;border-radius:50%;background:var(--t4)}
+
+    /* ── APP MOCK ── */
+    .hero-right{display:flex;justify-content:center;align-items:flex-start}
+    .app-frame{width:100%;max-width:440px;border:1px solid var(--border-h);border-radius:12px;overflow:hidden;background:var(--bg-1);box-shadow:0 40px 80px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.04),inset 0 1px 0 rgba(255,255,255,0.06)}
+    .frame-bar{display:flex;align-items:center;gap:6px;padding:11px 14px;background:var(--bg-2);border-bottom:1px solid var(--border)}
+    .dot{width:10px;height:10px;border-radius:50%}
+    .dot.r{background:#ff5f57}.dot.y{background:#ffbd2e}.dot.g{background:#28c840}
+    .frame-title{margin-left:8px;font-family:var(--mono);font-size:10px;color:var(--t4);font-weight:500;flex:1}
+    .streak-pill{font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-d);border:1px solid rgba(245,158,11,0.15);padding:2px 8px;border-radius:3px;font-weight:600;letter-spacing:0.04em}
+    .frame-body{padding:18px}
+    .frame-date{font-family:var(--mono);font-size:9px;color:var(--t4);letter-spacing:0.12em;text-transform:uppercase;font-weight:600;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+    .task-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;background:var(--bg-2);border:1px solid var(--border);font-size:12px;color:var(--t2);margin-bottom:6px;transition:border-color 0.2s}
+    .task-row.active{border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.04);color:var(--t1)}
+    .task-row.done{opacity:0.35}
+    .chk{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--t4);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:7px}
+    .chk.ok{background:var(--green);border-color:var(--green);color:#fff}
+    .task-name{flex:1;font-size:12px}
+    .tag{font-family:var(--mono);font-size:8px;font-weight:700;padding:2px 6px;border-radius:3px;text-transform:uppercase;letter-spacing:0.04em}
+    .tag.h{color:var(--red);background:var(--red-d)}.tag.m{color:var(--amber);background:var(--amber-d)}.tag.l{color:var(--green);background:var(--green-d)}
+    .timer-block{margin-top:10px;padding:14px 16px;border-radius:8px;background:var(--bg-3);border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .timer-info{display:flex;flex-direction:column;gap:3px}
+    .timer-lbl{font-family:var(--mono);font-size:8px;color:var(--t4);letter-spacing:0.12em;text-transform:uppercase;font-weight:600}
+    .timer-num{font-family:var(--mono);font-size:28px;font-weight:700;color:var(--t1);letter-spacing:-0.03em;line-height:1}
+    .timer-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+    .timer-status{font-family:var(--mono);font-size:9px;color:var(--green);font-weight:700;letter-spacing:0.08em}
+    .timer-bar-wrap{width:80px;height:3px;background:var(--bg-4);border-radius:2px;overflow:hidden}
+    .timer-bar{height:100%;width:62%;background:var(--green);border-radius:2px;animation:progress 25s linear infinite}
+    @keyframes progress{from{width:62%}to{width:100%}}
+
+    /* ── SECTION DIVIDER ── */
+    .section-div{max-width:1080px;margin:0 auto;padding:0 32px}
+    .div-line{display:flex;align-items:center;gap:16px;margin-bottom:48px}
+    .div-label{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--t4);letter-spacing:0.12em;text-transform:uppercase;white-space:nowrap}
+    .div-rule{flex:1;height:1px;background:var(--border)}
+
+    /* ── STATS STRIP ── */
+    .stats{max-width:1080px;margin:0 auto;padding:0 32px 80px}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+    .stat-cell{background:var(--bg-1);padding:28px 24px;display:flex;flex-direction:column;gap:8px;transition:background 0.15s}
+    .stat-cell:hover{background:var(--bg-2)}
+    .stat-num{font-family:var(--mono);font-size:28px;font-weight:700;color:var(--t1);letter-spacing:-0.04em}
+    .stat-num span{font-size:14px;color:var(--green);margin-left:2px}
+    .stat-label{font-size:12px;color:var(--t3);font-weight:400;line-height:1.4}
+
+    /* ── FEATURES ── */
+    .features{max-width:1080px;margin:0 auto;padding:0 32px 80px}
+    .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    .feat{background:var(--bg-1);padding:28px;transition:background 0.15s;cursor:default}
+    .feat:hover{background:var(--bg-2)}
+    .feat-icon{font-size:20px;margin-bottom:16px;display:block}
+    .feat h3{font-size:14px;font-weight:700;color:var(--t1);letter-spacing:-0.025em;margin-bottom:8px}
+    .feat p{font-size:12px;color:var(--t3);line-height:1.65}
+
+    /* ── FOCUS SPRINT SHOWCASE ── */
+    .sprint-section{max-width:1080px;margin:0 auto;padding:0 32px 80px}
+    .sprint-card{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--bg-1)}
+    .sprint-inner{display:grid;grid-template-columns:1fr 1fr;gap:0}
+    .sprint-text{padding:48px;display:flex;flex-direction:column;gap:24px;border-right:1px solid var(--border)}
+    .sprint-text h2{font-size:clamp(1.4rem,2.5vw,2rem);font-weight:800;letter-spacing:-0.04em;line-height:1.1}
+    .sprint-text h2 em{font-style:normal;color:var(--green)}
+    .sprint-text p{font-size:13px;color:var(--t3);line-height:1.7}
+    .sprint-behaviors{display:flex;flex-direction:column;gap:10px}
+    .behavior{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--t2)}
+    .behavior-icon{width:22px;height:22px;border-radius:5px;background:var(--green-d);border:1px solid rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px}
+    .sprint-visual{padding:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:var(--bg-0)}
+    .focus-display{text-align:center;padding:40px;border:1px solid var(--border);border-radius:10px;background:var(--bg-1);width:100%}
+    .focus-tag{font-family:var(--mono);font-size:9px;color:var(--t4);letter-spacing:0.14em;text-transform:uppercase;font-weight:600;margin-bottom:20px}
+    .focus-time{font-family:var(--mono);font-size:52px;font-weight:700;color:var(--t1);letter-spacing:-0.04em;line-height:1;margin-bottom:16px}
+    .focus-progress{width:100%;height:3px;background:var(--bg-4);border-radius:2px;overflow:hidden}
+    .focus-fill{height:100%;width:55%;background:var(--green);border-radius:2px;animation:progress 30s linear infinite}
+    .focus-note{font-family:var(--mono);font-size:10px;color:var(--t4);letter-spacing:0.06em;margin-top:12px}
+
+    /* ── HOW IT WORKS ── */
+    .how{max-width:1080px;margin:0 auto;padding:0 32px 80px}
+    .steps-row{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+    .step{padding:28px;border:1px solid var(--border);border-radius:10px;background:var(--bg-1);display:flex;flex-direction:column;gap:16px;transition:border-color 0.2s}
+    .step:hover{border-color:var(--border-h)}
+    .step-num{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--t4);letter-spacing:0.08em}
+    .step h4{font-size:15px;font-weight:700;color:var(--t1);letter-spacing:-0.025em}
+    .step p{font-size:12px;color:var(--t3);line-height:1.65}
+    .step strong{color:var(--t2);font-weight:600}
+
+    /* ── FINAL CTA ── */
+    .final-cta{max-width:1080px;margin:0 auto;padding:0 32px 100px}
+    .cta-card{border:1px solid var(--border);border-radius:16px;background:var(--bg-1);padding:64px 48px;text-align:center;position:relative;overflow:hidden}
+    .cta-card::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:500px;height:300px;background:radial-gradient(ellipse,rgba(16,185,129,0.1) 0%,transparent 70%);pointer-events:none}
+    .cta-card h2{font-size:clamp(1.8rem,3vw,2.6rem);font-weight:800;letter-spacing:-0.04em;margin-bottom:14px}
+    .cta-card p{font-size:15px;color:var(--t3);margin-bottom:36px;line-height:1.6}
+    .cta-btns{display:flex;align-items:center;justify-content:center;gap:12px}
+    .btn-ghost{display:inline-flex;align-items:center;gap:7px;padding:12px 20px;background:transparent;color:var(--t2);font-family:var(--font);font-size:13px;font-weight:600;border-radius:8px;text-decoration:none;border:1px solid var(--border);transition:all 0.15s}
+    .btn-ghost:hover{border-color:var(--border-h);color:var(--t1)}
+
+    /* ── FOOTER ── */
+    footer{border-top:1px solid var(--border);padding:0}
+    .footer-inner{max-width:1080px;margin:0 auto;padding:24px 32px;display:flex;align-items:center;justify-content:space-between}
+    .footer-left{display:flex;align-items:center;gap:10px}
+    .footer-name{font-size:12px;color:var(--t4);font-weight:500}
+    .footer-links{display:flex;gap:24px}
+    .footer-links a{font-size:12px;color:var(--t4);text-decoration:none;transition:color 0.15s}
+    .footer-links a:hover{color:var(--t2)}
+
+    /* ── FADE IN ── */
+    .fade{opacity:0;transform:translateY(20px);transition:opacity 0.6s var(--ease),transform 0.6s var(--ease)}
+    .fade.visible{opacity:1;transform:translateY(0)}
+
+    @media(max-width:900px){
+      .hero{grid-template-columns:1fr;gap:48px;padding:64px 24px 48px}
+      .hero-right{width:100%}
+      .app-frame{max-width:100%}
+      .stats-grid{grid-template-columns:repeat(2,1fr)}
+      .features-grid{grid-template-columns:repeat(2,1fr)}
+      .sprint-inner{grid-template-columns:1fr}
+      .sprint-text{border-right:none;border-bottom:1px solid var(--border)}
+      .steps-row{grid-template-columns:1fr}
+      .nav-inner{padding:0 20px}
     }
-
-    /* ── Subtle grid bg ── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* ── Subtle glow ── */
-    body::after {
-      content: '';
-      position: fixed;
-      top: -300px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 800px;
-      height: 600px;
-      background: radial-gradient(ellipse, rgba(16,185,129,0.06) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .wrap { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 0 24px; }
-
-    /* ── Nav ── */
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      border-bottom: 1px solid var(--border);
-      background: rgba(9,9,11,0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-    }
-
-    .nav-inner {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 0 24px;
-      height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .nav-indicator {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 8px rgba(16,185,129,0.6);
-      animation: blink 3s ease-in-out infinite;
-    }
-
-    @keyframes blink {
-      0%,100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    .nav-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--t1);
-      letter-spacing: -0.01em;
-    }
-
-    .nav-badge {
-      font-family: var(--mono);
-      font-size: 10px;
-      font-weight: 500;
-      color: var(--t3);
-      background: var(--bg-3);
-      border: 1px solid var(--border);
-      padding: 2px 8px;
-      border-radius: 4px;
-      letter-spacing: 0.02em;
-    }
-
-    /* ── Hero ── */
-    .hero {
-      padding: 96px 0 72px;
-      text-align: center;
-    }
-
-    .hero-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--t3);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 28px;
-      padding: 5px 12px;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      background: var(--bg-2);
-    }
-
-    .hero-eyebrow .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
-
-    h1 {
-      font-size: clamp(2.2rem, 5vw, 3.4rem);
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      line-height: 1.05;
-      color: var(--t1);
-      margin-bottom: 20px;
-    }
-
-    .hero-sub {
-      font-size: 16px;
-      color: var(--t2);
-      line-height: 1.7;
-      max-width: 480px;
-      margin: 0 auto 40px;
-      font-weight: 400;
-    }
-
-    /* ── Download button ── */
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 28px;
-      background: var(--t1);
-      color: var(--bg-0);
-      font-family: var(--font);
-      font-size: 14px;
-      font-weight: 700;
-      border-radius: 8px;
-      text-decoration: none;
-      letter-spacing: -0.01em;
-      transition: opacity 0.15s var(--ease), transform 0.15s var(--ease);
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 8px 24px rgba(0,0,0,0.5);
-    }
-
-    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-    .btn-primary:active { transform: translateY(0); opacity: 1; }
-
-    .btn-icon { font-size: 16px; }
-
-    .download-meta {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      margin-top: 16px;
-    }
-
-    .meta-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--t3);
-      font-weight: 500;
-    }
-
-    .meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--t4); }
-
-    /* ── App preview card ── */
-    .preview-card {
-      margin: 56px 0;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: var(--bg-1);
-      overflow: hidden;
-      box-shadow: 0 32px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
-    }
-
-    .preview-titlebar {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 14px;
-      background: var(--bg-2);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .tb-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .tb-dot.r { background: #ff5f57; }
-    .tb-dot.y { background: #ffbd2e; }
-    .tb-dot.g { background: #28c840; }
-    .tb-label { margin-left: 10px; font-size: 11px; color: var(--t3); font-weight: 500; font-family: var(--mono); }
-
-    .preview-body {
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .preview-section-label {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--t4);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      font-weight: 500;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 4px;
-    }
-
-    .preview-task {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-radius: 6px;
-      background: var(--bg-2);
-      border: 1px solid var(--border);
-      font-size: 13px;
-      color: var(--t2);
-      transition: border-color 0.2s;
-    }
-
-    .preview-task.active {
-      border-color: rgba(16,185,129,0.25);
-      background: rgba(16,185,129,0.04);
-      color: var(--t1);
-    }
-
-    .preview-task.done { opacity: 0.38; }
-
-    .task-check {
-      width: 15px; height: 15px;
-      border-radius: 50%;
-      border: 1.5px solid var(--t4);
-      flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    .task-check.checked {
-      background: var(--green);
-      border-color: var(--green);
-      font-size: 8px;
-      color: #fff;
-    }
-
-    .task-label { flex: 1; }
-
-    .task-priority {
-      font-family: var(--mono);
-      font-size: 9px;
-      font-weight: 600;
-      padding: 2px 6px;
-      border-radius: 3px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .p-high { color: var(--red); background: rgba(244,63,94,0.1); }
-    .p-med { color: var(--amber); background: rgba(245,158,11,0.1); }
-    .p-low { color: var(--green); background: var(--green-d); }
-
-    .preview-timer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 16px;
-      border-radius: 6px;
-      background: var(--bg-3);
-      border: 1px solid var(--border);
-      margin-top: 4px;
-    }
-
-    .timer-left { display: flex; flex-direction: column; gap: 2px; }
-    .timer-label { font-family: var(--mono); font-size: 9px; color: var(--t4); letter-spacing: 0.1em; text-transform: uppercase; }
-    .timer-digits { font-family: var(--mono); font-size: 26px; font-weight: 600; color: var(--t1); letter-spacing: -0.02em; }
-    .timer-status { font-family: var(--mono); font-size: 10px; color: var(--green); letter-spacing: 0.08em; }
-
-    /* ── Features ── */
-    .features { padding: 0 0 80px; }
-
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .section-label {
-      font-family: var(--mono);
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--t4);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .section-line { flex: 1; height: 1px; background: var(--border); }
-
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    .feature-cell {
-      background: var(--bg-1);
-      padding: 22px 20px;
-      transition: background 0.15s;
-    }
-
-    .feature-cell:hover { background: var(--bg-2); }
-
-    .feature-icon {
-      font-size: 18px;
-      margin-bottom: 12px;
-      display: block;
-    }
-
-    .feature-cell h3 {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--t1);
-      letter-spacing: -0.02em;
-      margin-bottom: 6px;
-    }
-
-    .feature-cell p {
-      font-size: 12px;
-      color: var(--t3);
-      line-height: 1.6;
-    }
-
-    /* ── Install steps ── */
-    .install { padding: 0 0 80px; }
-
-    .steps { display: flex; flex-direction: column; gap: 0; }
-
-    .step {
-      display: flex;
-      gap: 20px;
-      padding: 20px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .step:last-child { border-bottom: none; }
-
-    .step-num {
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--t4);
-      min-width: 24px;
-      padding-top: 2px;
-    }
-
-    .step-content h4 { font-size: 14px; font-weight: 700; color: var(--t1); letter-spacing: -0.02em; margin-bottom: 4px; }
-    .step-content p { font-size: 13px; color: var(--t3); line-height: 1.6; }
-    .step-content strong { color: var(--t2); font-weight: 600; }
-
-    /* ── CTA bottom ── */
-    .cta {
-      text-align: center;
-      padding: 64px 0 96px;
-      border-top: 1px solid var(--border);
-    }
-
-    .cta h2 { font-size: 28px; font-weight: 800; letter-spacing: -0.04em; margin-bottom: 10px; }
-    .cta p { font-size: 14px; color: var(--t3); margin-bottom: 32px; }
-
-    /* ── Footer ── */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .footer-brand {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 12px; color: var(--t4); font-weight: 500;
-    }
-
-    .footer-links { display: flex; gap: 20px; }
-    .footer-links a { font-size: 12px; color: var(--t4); text-decoration: none; transition: color 0.15s; }
-    .footer-links a:hover { color: var(--t2); }
-
-    @media (max-width: 600px) {
-      .hero { padding: 64px 0 48px; }
-      h1 { font-size: 2rem; }
-      .download-meta { flex-wrap: wrap; gap: 10px; }
-      footer { flex-direction: column; gap: 16px; text-align: center; }
+    @media(max-width:600px){
+      .hero{padding:48px 20px 40px}
+      .stats{padding:0 20px 60px}
+      .features{padding:0 20px 60px}
+      .sprint-section{padding:0 20px 60px}
+      .how{padding:0 20px 60px}
+      .final-cta{padding:0 20px 80px}
+      .features-grid{grid-template-columns:1fr}
+      .stats-grid{grid-template-columns:1fr 1fr}
+      .cta-btns{flex-direction:column}
+      .footer-inner{flex-direction:column;gap:16px;text-align:center}
     }
   </style>
 </head>
 <body>
+<div class="grid-bg"></div>
+<div class="glow-top"></div>
 
-  <!-- Nav -->
-  <nav>
-    <div class="nav-inner">
-      <div class="nav-brand">
-        <div class="nav-indicator"></div>
-        <span class="nav-title">Daily Task Planner</span>
-      </div>
-      <span class="nav-badge">v1.0.7</span>
+<div class="page">
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="nav-pulse"></div>
+      <span class="nav-name">Daily Task Planner</span>
+    </a>
+    <div class="nav-right">
+      <span class="nav-version">v1.0.7</span>
+      <a id="btn-nav-download" href="https://github.com/utkarsh2172006-design/daily-task-planner-releases/releases/latest/download/Daily.Task.Planner.Setup.1.0.7.exe" class="btn-nav">
+        ↓ Download
+      </a>
     </div>
-  </nav>
+  </div>
+</nav>
 
-  <!-- Hero -->
-  <div class="wrap">
-    <section class="hero">
-      <div class="hero-eyebrow">
-        <span class="dot"></span>
-        Windows 10 / 11 &nbsp;·&nbsp; Free &nbsp;·&nbsp; Offline
-      </div>
-
-      <h1>Plan your day.<br />Stay in control.</h1>
-
-      <p class="hero-sub">
-        A focused desktop planner with a distraction-free Focus Sprint timer,
-        streak tracking, and built-in ambient audio. No internet, no account.
-      </p>
-
-      <a
-        id="btn-download-primary"
-        href="https://github.com/utkarsh2172006-design/daily-task-planner-releases/releases/latest/download/Daily.Task.Planner.Setup.1.0.7.exe"
-        class="btn-primary"
-      >
-        <span class="btn-icon">↓</span>
-        Download for Windows
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left fade">
+    <div class="hero-chip"><span></span> Free · Windows 10 / 11 · Offline</div>
+    <h1>Plan your day.<br/>Own your <em>focus</em>.</h1>
+    <p class="hero-sub">A distraction-free desktop planner built for people who want to get real work done — not manage another subscription.</p>
+    <div class="hero-cta">
+      <a id="btn-hero-download" href="https://github.com/utkarsh2172006-design/daily-task-planner-releases/releases/latest/download/Daily.Task.Planner.Setup.1.0.7.exe" class="btn-primary">
+        ↓ &nbsp;Download for Windows — Free
       </a>
-
-      <div class="download-meta">
-        <span class="meta-item">107 MB</span>
-        <span class="meta-dot"></span>
-        <span class="meta-item">One-click installer</span>
-        <span class="meta-dot"></span>
-        <span class="meta-item">No account needed</span>
+      <div class="meta-row">
+        <span class="meta-pill">107 MB</span>
+        <span class="meta-sep"></span>
+        <span class="meta-pill">One-click install</span>
+        <span class="meta-sep"></span>
+        <span class="meta-pill">No account</span>
       </div>
-
-      <!-- App preview -->
-      <div class="preview-card">
-        <div class="preview-titlebar">
-          <div class="tb-dot r"></div>
-          <div class="tb-dot y"></div>
-          <div class="tb-dot g"></div>
-          <span class="tb-label">Daily Task Planner</span>
-        </div>
-        <div class="preview-body">
-          <div class="preview-section-label">Today — Monday</div>
-
-          <div class="preview-task done">
-            <div class="task-check checked">✓</div>
-            <span class="task-label">Morning review &amp; inbox zero</span>
-            <span class="task-priority p-low">Done</span>
-          </div>
-
-          <div class="preview-task active">
-            <div class="task-check"></div>
-            <span class="task-label">Write project proposal</span>
-            <span class="task-priority p-high">High</span>
-          </div>
-
-          <div class="preview-task">
-            <div class="task-check"></div>
-            <span class="task-label">Review weekly analytics</span>
-            <span class="task-priority p-med">Med</span>
-          </div>
-
-          <div class="preview-task">
-            <div class="task-check"></div>
-            <span class="task-label">Reply to client emails</span>
-            <span class="task-priority p-low">Low</span>
-          </div>
-
-          <div class="preview-timer">
-            <div class="timer-left">
-              <span class="timer-label">Focus Sprint</span>
-              <span class="timer-digits">23:47</span>
-            </div>
-            <span class="timer-status">● RUNNING</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Features -->
-    <section class="features">
-      <div class="section-header">
-        <span class="section-label">Features</span>
-        <div class="section-line"></div>
-      </div>
-
-      <div class="feature-grid">
-        <div class="feature-cell">
-          <span class="feature-icon">⏱</span>
-          <h3>Focus Sprint</h3>
-          <p>Fullscreen timer that hides all controls. Move your cursor to the top edge to reveal them.</p>
-        </div>
-        <div class="feature-cell">
-          <span class="feature-icon">🔥</span>
-          <h3>Streak Tracker</h3>
-          <p>Counts consecutive days of planning. Miss a day and the streak resets — stay consistent.</p>
-        </div>
-        <div class="feature-cell">
-          <span class="feature-icon">🔊</span>
-          <h3>Ambient Audio</h3>
-          <p>Built-in Brown Noise, Rain, and 432Hz tone. No Spotify or browser tab needed.</p>
-        </div>
-        <div class="feature-cell">
-          <span class="feature-icon">⌨️</span>
-          <h3>Keyboard First</h3>
-          <p>Navigate tasks with J/K, complete with Space, open everything via Ctrl+K command palette.</p>
-        </div>
-        <div class="feature-cell">
-          <span class="feature-icon">💾</span>
-          <h3>Backup &amp; Restore</h3>
-          <p>Export your tasks as a .json file. Import them back anytime, even on a new machine.</p>
-        </div>
-        <div class="feature-cell">
-          <span class="feature-icon">🔒</span>
-          <h3>Fully Offline</h3>
-          <p>No account. No cloud. No telemetry. Your data stays on your machine, always.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Install Steps -->
-    <section class="install">
-      <div class="section-header">
-        <span class="section-label">Installation</span>
-        <div class="section-line"></div>
-      </div>
-
-      <div class="steps">
-        <div class="step">
-          <span class="step-num">01</span>
-          <div class="step-content">
-            <h4>Download the installer</h4>
-            <p>Click the download button above. The file is about 107 MB.</p>
-          </div>
-        </div>
-        <div class="step">
-          <span class="step-num">02</span>
-          <div class="step-content">
-            <h4>Run the .exe file</h4>
-            <p>Windows may show a SmartScreen prompt. Click <strong>More info → Run anyway</strong>. This is normal for independent apps not listed in the Microsoft Store.</p>
-          </div>
-        </div>
-        <div class="step">
-          <span class="step-num">03</span>
-          <div class="step-content">
-            <h4>App opens automatically</h4>
-            <p>Installation is silent and instant. The app launches right away and is pinned to your Start Menu.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Bottom CTA -->
-    <section class="cta">
-      <h2>Ready to plan your day?</h2>
-      <p>Free. Offline. No setup required.</p>
-      <a
-        id="btn-download-cta"
-        href="https://github.com/utkarsh2172006-design/daily-task-planner-releases/releases/latest/download/Daily.Task.Planner.Setup.1.0.7.exe"
-        class="btn-primary"
-      >
-        <span class="btn-icon">↓</span>
-        Download for Windows — Free
-      </a>
-    </section>
+    </div>
   </div>
 
-  <!-- Footer -->
-  <footer>
-    <div class="footer-brand">
-      <div class="nav-indicator" style="width:6px;height:6px;"></div>
-      Daily Task Planner · v1.0.7
+  <div class="hero-right fade">
+    <div class="app-frame">
+      <div class="frame-bar">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <span class="frame-title">Daily Task Planner</span>
+        <span class="streak-pill">🔥 14-DAY STREAK</span>
+      </div>
+      <div class="frame-body">
+        <div class="frame-date">Monday · Sep 14 · 3 of 5 tasks done</div>
+        <div class="task-row done"><div class="chk ok">✓</div><span class="task-name">Morning review &amp; inbox zero</span><span class="tag l">Done</span></div>
+        <div class="task-row done"><div class="chk ok">✓</div><span class="task-name">Team standup + notes</span><span class="tag l">Done</span></div>
+        <div class="task-row active"><div class="chk"></div><span class="task-name">Write Q3 project proposal</span><span class="tag h">High</span></div>
+        <div class="task-row"><div class="chk"></div><span class="task-name">Review analytics dashboard</span><span class="tag m">Med</span></div>
+        <div class="task-row"><div class="chk"></div><span class="task-name">Reply to client emails</span><span class="tag l">Low</span></div>
+        <div class="timer-block">
+          <div class="timer-info">
+            <span class="timer-lbl">Focus Sprint</span>
+            <span class="timer-num">23:47</span>
+          </div>
+          <div class="timer-right">
+            <span class="timer-status">● RUNNING</span>
+            <div class="timer-bar-wrap"><div class="timer-bar"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats fade">
+  <div class="div-line"><div class="div-rule"></div></div>
+  <div class="stats-grid">
+    <div class="stat-cell">
+      <div class="stat-num">100<span>%</span></div>
+      <div class="stat-label">Offline. Your data never leaves your machine.</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">0<span>$</span></div>
+      <div class="stat-label">Free forever. No subscription, no trial period.</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">0</div>
+      <div class="stat-label">Accounts required. No signup, no email.</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">1<span>click</span></div>
+      <div class="stat-label">Install and launch. No setup wizard or config.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features fade">
+  <div class="div-line">
+    <div class="div-label">Features</div>
+    <div class="div-rule"></div>
+  </div>
+  <div class="features-grid">
+    <div class="feat"><span class="feat-icon">⏱</span><h3>Focus Sprint Timer</h3><p>A fullscreen, distraction-free countdown. Controls auto-hide when the timer starts and reappear when you move your cursor to the top edge.</p></div>
+    <div class="feat"><span class="feat-icon">🔥</span><h3>Streak Tracker</h3><p>Tracks consecutive days of planning. Miss a day and it resets — a powerful daily accountability system built directly into your workflow.</p></div>
+    <div class="feat"><span class="feat-icon">🔊</span><h3>Ambient Audio Engine</h3><p>Built-in Brown Noise, Rain, and 432Hz tone synthesized on-device. No Spotify, no browser tabs, no distractions.</p></div>
+    <div class="feat"><span class="feat-icon">⌨️</span><h3>Keyboard-First Design</h3><p>Navigate with J/K, complete with Space, edit with E, delete with Del. <span style="font-family:var(--mono);font-size:11px;color:var(--t3)">Ctrl+K</span> opens a command palette for everything else.</p></div>
+    <div class="feat"><span class="feat-icon">💾</span><h3>Backup &amp; Restore</h3><p>Export your tasks to a <span style="font-family:var(--mono);font-size:11px;color:var(--t3)">.json</span> file in one click. Import them back anytime — even on a new machine.</p></div>
+    <div class="feat"><span class="feat-icon">🗂</span><h3>Priority System</h3><p>Tag every task as High, Medium, or Low priority. Visual color coding makes your most important work impossible to ignore.</p></div>
+  </div>
+</section>
+
+<!-- FOCUS SPRINT SHOWCASE -->
+<section class="sprint-section fade">
+  <div class="div-line">
+    <div class="div-label">Focus Sprint</div>
+    <div class="div-rule"></div>
+  </div>
+  <div class="sprint-card">
+    <div class="sprint-inner">
+      <div class="sprint-text">
+        <h2>Your screen clears.<br/>The clock <em>starts</em>.</h2>
+        <p>Focus Sprint transforms the entire app into a single fullscreen timer. Every distraction disappears the moment it begins — the way deep work was meant to feel.</p>
+        <div class="sprint-behaviors">
+          <div class="behavior"><div class="behavior-icon">↑</div>Controls auto-slide up and hide when timer starts</div>
+          <div class="behavior"><div class="behavior-icon">→</div>Move cursor to top edge to reveal controls temporarily</div>
+          <div class="behavior"><div class="behavior-icon">↩</div>Back to Planner button always accessible when needed</div>
+          <div class="behavior"><div class="behavior-icon">⛶</div>Optional fullscreen mode for total immersion</div>
+        </div>
+      </div>
+      <div class="sprint-visual">
+        <div class="focus-display">
+          <div class="focus-tag">Focus Sprint — Running</div>
+          <div class="focus-time">23:47</div>
+          <div class="focus-progress"><div class="focus-fill"></div></div>
+          <div class="focus-note">Move cursor to top edge to access controls</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how fade">
+  <div class="div-line">
+    <div class="div-label">Installation</div>
+    <div class="div-rule"></div>
+  </div>
+  <div class="steps-row">
+    <div class="step">
+      <span class="step-num">01 — Download</span>
+      <h4>Get the installer</h4>
+      <p>Click the download button. You'll get a single <strong>.exe</strong> file around 107 MB. No zip, no extra steps.</p>
+    </div>
+    <div class="step">
+      <span class="step-num">02 — Install</span>
+      <h4>Run the .exe</h4>
+      <p>Double-click the file. If Windows shows a SmartScreen prompt, click <strong>More info → Run anyway</strong>. This is normal for independent apps.</p>
+    </div>
+    <div class="step">
+      <span class="step-num">03 — Open</span>
+      <h4>Start planning</h4>
+      <p>The app installs silently and launches immediately. It appears in your <strong>Start Menu</strong> whenever you need it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta fade">
+  <div class="cta-card">
+    <h2>Start planning today.</h2>
+    <p>Free. Offline. No setup required.<br/>Your first task is waiting.</p>
+    <div class="cta-btns">
+      <a id="btn-cta-download" href="https://github.com/utkarsh2172006-design/daily-task-planner-releases/releases/latest/download/Daily.Task.Planner.Setup.1.0.7.exe" class="btn-primary">
+        ↓ &nbsp;Download for Windows
+      </a>
+      <a href="https://github.com/utkarsh2172006-design/daily-task-planner-releases/releases" target="_blank" rel="noopener" class="btn-ghost">
+        View all releases →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-left">
+      <div class="nav-pulse" style="width:6px;height:6px"></div>
+      <span class="footer-name">Daily Task Planner · Made by Utkarsh Jaiswal</span>
     </div>
     <div class="footer-links">
       <a href="https://github.com/utkarsh2172006-design/daily-task-planner-releases/releases" target="_blank" rel="noopener">Releases</a>
       <a href="https://github.com/utkarsh2172006-design/daily-task-planner-releases/issues" target="_blank" rel="noopener">Report Issue</a>
       <a href="https://github.com/utkarsh2172006-design" target="_blank" rel="noopener">GitHub</a>
     </div>
-  </footer>
+  </div>
+</footer>
 
+</div>
+
+<script>
+  // Fade-in on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade').forEach(el => observer.observe(el));
+</script>
 </body>
 </html>
